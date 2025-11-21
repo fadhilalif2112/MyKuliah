@@ -2,31 +2,25 @@
 
 namespace App\Models;
 
-use App\Models\User;
-use App\Models\Todolist;
 use Illuminate\Database\Eloquent\Model;
 
 class Document extends Model
 {
     protected $table = 'documents';
-
     protected $fillable = [
-        'user_id', // fk
+        'user_id',
         'title',
         'description',
         'file_attachment',
-        //timestamps
     ];
 
-    // provide
-    public function todolist()
+    public function todolists()
     {
-        $this->hasOne(Todolist::class, 'document_id');
+        return $this->hasMany(Todolist::class, 'document_id');
     }
 
-    // belongs to
     public function user()
     {
-        $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

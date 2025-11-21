@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class UserSeeder extends Seeder
@@ -13,21 +14,31 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // try {
-        //     $roles = Role::insert([
-        //         [
-        //             'name'  =>  'Admin',
-        //         ],
+        // Admin User
+        User::create([
+            'role_id' => 1,
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'mahasiswa_id' => 'admin123',
+        ]);
 
-        //         [   
-        //             'name'  =>  'User',
-        //         ]
-        //     ]);
+        // Regular User 1
+        User::create([
+            'role_id' => 2,
+            'name' => 'Regular User 1',
+            'email' => 'user1@example.com',
+            'password' => Hash::make('password'),
+            'mahasiswa_id' => 'user123',
+        ]);
 
-        //     echo "✅ Seeder berhasil";
-        // } catch (\Exception $e) {
-        //     echo $e->getMessage();
-        // }
-        
+        // Regular User 2
+        User::create([
+            'role_id' => 2,
+            'name' => 'Regular User 2',
+            'email' => 'user2@example.com',
+            'password' => Hash::make('password'),
+            'mahasiswa_id' => 'user456',
+        ]);
     }
 }

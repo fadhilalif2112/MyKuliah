@@ -8,7 +8,7 @@
         <div class="sm:flex sm:items-center sm:justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p class="mt-2 text-sm text-gray-700">Senin, 10 November 2025</p>
+                <p class="mt-2 text-sm text-gray-700">{{ \Carbon\Carbon::now()->format('l, d F Y') }}</p>
             </div>
         </div>
 
@@ -18,12 +18,14 @@
             <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-gray-900">Tasks Progress</h3>
-                    <span class="text-2xl font-bold text-primary-600">50%</span>
+                    <span class="text-2xl font-bold text-primary-600">{{ $taskProgress }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-primary-600 h-2 rounded-full transition-all duration-300" style="width: 50%"></div>
+                    <div class="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                        style="width: {{ $taskProgress }}%"></div>
                 </div>
-                <p class="mt-2 text-xs text-gray-600">1 of 2 tasks completed</p>
+                <p class="mt-2 text-xs text-gray-600">{{ $stats['completed'] ?? 0 }} of {{ $stats['total'] ?? 0 }} tasks
+                    completed</p>
             </div>
 
             <!-- Classes Today Card -->
@@ -31,7 +33,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Classes Today</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1">2</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ $classesCount }}</p>
                     </div>
                     <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
                         <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,7 +49,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Upcoming Exams</p>
-                        <p class="text-3xl font-bold text-gray-900 mt-1">2</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-1">{{ $examsCount }}</p>
                     </div>
                     <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
                         <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -67,27 +69,30 @@
                     <h3 class="text-lg font-semibold text-gray-900">Classes Today</h3>
                 </div>
                 <div class="p-6 space-y-4">
-                    <!-- Class 1 (hardcoded subject 1) -->
-                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                        <div class="bg-blue-500 h-12 w-1 rounded-full"></div>
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-900">Algoritma & Pemrograman</h4>
-                            <p class="text-sm text-gray-600 mt-1">08:00 - 10:00</p>
-                            <p class="text-sm text-gray-500">Lab 301 • Dr. Ahmad Subagyo</p>
+                    @forelse($todayClasses as $class)
+                        <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                            <div class="bg-blue-500 h-12 w-1 rounded-full"></div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900">{{ $class->subject->subject_name }}</h4>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    {{ $class->start_at }} - {{ $class->end_at }}
+                                </p>
+                                <p class="text-sm text-gray-500">
+                                    {{ $class->room }}
+                                    @if ($class->lecture)
+                                        • {{ $class->lecture->name }}
+                                    @endif
+                                </p>
+                            </div>
+                            <span class="text-xs font-medium text-gray-500">
+                                {{ $class->subject->subject_name }}
+                            </span>
                         </div>
-                        <span class="text-xs font-medium text-gray-500">CS101</span>
-                    </div>
-
-                    <!-- Class 2 (hardcoded subject 2) -->
-                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                        <div class="bg-green-500 h-12 w-1 rounded-full"></div>
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-900">Kalkulus II</h4>
-                            <p class="text-sm text-gray-600 mt-1">10:30 - 12:00</p>
-                            <p class="text-sm text-gray-500">Ruang 204 • Prof. Siti Nurhaliza</p>
+                    @empty
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">No classes scheduled for today</p>
                         </div>
-                        <span class="text-xs font-medium text-gray-500">MTK201</span>
-                    </div>
+                    @endforelse
                 </div>
             </div>
 
@@ -95,30 +100,33 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200">
                 <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Upcoming Tasks</h3>
-                    <a href="{{ route('tasks') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700">View
-                        all</a>
+                    <a href="{{ route('tasks.index') }}"
+                        class="text-sm font-medium text-primary-600 hover:text-primary-700">View all</a>
                 </div>
                 <div class="p-6 space-y-3">
-                    <!-- Task 1 -->
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div class="bg-blue-500 h-8 w-1 rounded-full"></div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-medium text-gray-900 truncate">Tugas Algoritma Sorting</p>
-                            <p class="text-sm text-gray-600">CS101 • 2025-11-10</p>
+                    @forelse($upcomingTasks as $task)
+                        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="bg-blue-500 h-8 w-1 rounded-full"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-medium text-gray-900 truncate">{{ $task->title }}</p>
+                                <p class="text-sm text-gray-600">
+                                    {{ $task->category->name ?? 'Uncategorized' }}
+                                    • {{ \Carbon\Carbon::parse($task->due_date)->format('d M Y') }}
+                                </p>
+                            </div>
+                            @if (\Carbon\Carbon::parse($task->due_date)->isToday())
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800">Due
+                                    Today</span>
+                            @elseif(\Carbon\Carbon::parse($task->due_date)->isPast())
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Overdue</span>
+                            @endif
                         </div>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800">Due
-                            Today</span>
-                    </div>
-
-                    <!-- Task 2 -->
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                        <div class="bg-green-500 h-8 w-1 rounded-full"></div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-medium text-gray-900 truncate">Latihan Integral</p>
-                            <p class="text-sm text-gray-600">MTK201 • 2025-11-08</p>
+                    @empty
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">No upcoming tasks</p>
                         </div>
-                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">Overdue</span>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -127,30 +135,34 @@
         <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-900">Next Exams</h3>
-                <a href="{{ route('exams') }}" class="text-sm font-medium text-primary-600 hover:text-primary-700">View
-                    all</a>
+                <a href="{{ route('exams.index') }}"
+                    class="text-sm font-medium text-primary-600 hover:text-primary-700">View all</a>
             </div>
             <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Exam 1 -->
-                    <div class="p-4 bg-gray-50 rounded-xl border-l-4 bg-blue-50">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900">Algoritma & Pemrograman</h4>
-                            <span class="text-xs font-medium px-2 py-1 bg-white rounded-full text-gray-600">H-10</span>
+                    @forelse($upcomingExams as $exam)
+                        <div class="p-4 bg-gray-50 rounded-xl border-l-4 border-primary-600">
+                            <div class="flex items-start justify-between mb-2">
+                                <h4 class="font-semibold text-gray-900">{{ $exam->title }}</h4>
+                                @php
+                                    $daysLeft = \Carbon\Carbon::parse($exam->due_date)->diffInDays(
+                                        \Carbon\Carbon::now(),
+                                    );
+                                @endphp
+                                <span class="text-xs font-medium px-2 py-1 bg-white rounded-full text-gray-600">
+                                    H-{{ $daysLeft }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600">{{ $exam->category->name ?? 'General' }}</p>
+                            <p class="text-sm text-gray-500 mt-2">
+                                {{ \Carbon\Carbon::parse($exam->due_date)->format('d M Y') }}
+                            </p>
                         </div>
-                        <p class="text-sm text-gray-600">CS101</p>
-                        <p class="text-sm text-gray-500 mt-2">20 Nov 2025 • Lab 301</p>
-                    </div>
-
-                    <!-- Exam 2 -->
-                    <div class="p-4 bg-gray-50 rounded-xl border-l-4 bg-green-50">
-                        <div class="flex items-start justify-between mb-2">
-                            <h4 class="font-semibold text-gray-900">Kalkulus II</h4>
-                            <span class="text-xs font-medium px-2 py-1 bg-white rounded-full text-gray-600">H-12</span>
+                    @empty
+                        <div class="col-span-3 text-center py-8">
+                            <p class="text-gray-500">No upcoming exams</p>
                         </div>
-                        <p class="text-sm text-gray-600">MTK201</p>
-                        <p class="text-sm text-gray-500 mt-2">22 Nov 2025 • Ruang 204</p>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>

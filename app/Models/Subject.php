@@ -2,33 +2,27 @@
 
 namespace App\Models;
 
-use App\Models\Lecture;
-use App\Models\Schedule;
 use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model
 {
     protected $table = 'subjects';
-
     protected $fillable = [
-        'lecture_id', // fk
+        'lecture_id',
         'subject_name',
         'semester',
         'credits',
-        'description'
+        'description',
     ];
-
     public $timestamps = false;
 
-    // provide
-    public function schedule()
+    public function schedules()
     {
-        $this->hasOne(Schedule::class, 'subject_id');
+        return $this->hasMany(Schedule::class, 'subject_id');
     }
 
-    // belongs to 
-    public function subject()
+    public function lecture()
     {
-        $this->belongsTo(Lecture::class, 'lecture_id');
+        return $this->belongsTo(Lecture::class, 'lecture_id');
     }
 }

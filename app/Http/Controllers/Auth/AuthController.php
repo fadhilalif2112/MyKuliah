@@ -62,25 +62,20 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $validated = $request->validate([
+        $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
-
-        if (!Auth::attempt($validated)) {
-            return back()->with('failed', 'Kamu belum login');
-        }            
-
-        if (Auth::attempt($validated)) {
-
+ 
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
-            return redirect()->route('dashboard')
+ 
+            return redirect()->intended('dashboard')
                             ->with('success', 'Login successful!');
         }
-
+ 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
+            'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
     }
 

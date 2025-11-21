@@ -11,13 +11,13 @@
                 <p class="mt-2 text-sm text-gray-700">Manage your homework and assignments</p>
             </div>
             <div class="mt-4 sm:mt-0">
-                <button onclick="openModal('add-task-modal')"
+                <a href="{{ route('tasks.create') }}"
                     class="inline-flex items-center gap-x-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Add Task
-                </button>
+                </a>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
                                 <input type="checkbox"
                                     class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600">
                             </th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Subject
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Category
                             </th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Title</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Due Date
@@ -67,72 +67,101 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white" id="tasks-tbody">
-                        <!-- Task 1 (Due Today) -->
-                        <tr class="hover:bg-gray-50 task-row" data-status="due_today">
-                            <td class="py-4 pl-6 pr-3">
-                                <input type="checkbox"
-                                    class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600">
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-blue-500 h-8 w-1 rounded-full"></div>
-                                    <span class="font-medium text-gray-900">CS101</span>
-                                </div>
-                            </td>
-                            <td class="px-3 py-4 text-sm text-gray-900">
-                                <div class="font-medium">Tugas Algoritma Sorting</div>
-                                <div class="text-gray-500 mt-1">Algoritma & Pemrograman</div>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600">10 Nov 2025</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <span class="font-semibold text-red-700">!!!</span>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <span
-                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-800">
-                                    Due Today
-                                </span>
-                            </td>
-                            <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
-                                <button class="text-primary-600 hover:text-primary-900 font-medium">Edit</button>
-                                <button class="ml-4 text-red-600 hover:text-red-900 font-medium">Delete</button>
-                            </td>
-                        </tr>
-
-                        <!-- Task 2 (Completed) -->
-                        <tr class="hover:bg-gray-50 task-row" data-status="completed">
-                            <td class="py-4 pl-6 pr-3">
-                                <input type="checkbox" checked
-                                    class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600">
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <div class="flex items-center gap-2">
-                                    <div class="bg-red-500 h-8 w-1 rounded-full"></div>
-                                    <span class="font-medium text-gray-900">DB201</span>
-                                </div>
-                            </td>
-                            <td class="px-3 py-4 text-sm text-gray-900">
-                                <div class="font-medium">Project ERD Design</div>
-                                <div class="text-gray-500 mt-1">Basis Data</div>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600">05 Nov 2025</td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <span class="font-semibold text-red-700">!!!</span>
-                            </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <span
-                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
-                                    Completed
-                                </span>
-                            </td>
-                            <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
-                                <button class="text-primary-600 hover:text-primary-900 font-medium">Edit</button>
-                                <button class="ml-4 text-red-600 hover:text-red-900 font-medium">Delete</button>
-                            </td>
-                        </tr>
+                        @forelse($tasks as $task)
+                            @php
+                                $dueDate = \Carbon\Carbon::parse($task->due_date);
+                                $status = 'all';
+                                if ($dueDate->isToday()) {
+                                    $status = 'due_today';
+                                } elseif ($dueDate->isPast() && $task->status === 'doing') {
+                                    $status = 'overdue';
+                                } elseif ($task->status === 'done') {
+                                    $status = 'completed';
+                                }
+                            @endphp
+                            <tr class="hover:bg-gray-50 task-row" data-status="{{ $status }}">
+                                <td class="py-4 pl-6 pr-3">
+                                    <input type="checkbox"
+                                        class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600">
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        @if ($task->category)
+                                            <div class="bg-primary-500 h-3 w-1 rounded-full"></div>
+                                            <span class="font-medium text-gray-900">{{ $task->category->name }}</span>
+                                        @else
+                                            <span class="text-gray-500">Uncategorized</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td class="px-3 py-4 text-sm text-gray-900">
+                                    <div class="font-medium">{{ $task->title }}</div>
+                                    @if ($task->description)
+                                        <div class="text-gray-500 mt-1">{{ Str::limit($task->description, 50) }}</div>
+                                    @endif
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
+                                    {{ $dueDate->format('d M Y') }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                    @if ($task->priority === 'high')
+                                        <span class="font-semibold text-red-700">!!!</span>
+                                    @elseif($task->priority === 'medium')
+                                        <span class="font-semibold text-amber-700">!!</span>
+                                    @else
+                                        <span class="font-semibold text-green-700">!</span>
+                                    @endif
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm">
+                                    @if ($task->status === 'done')
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800">
+                                            Completed
+                                        </span>
+                                    @elseif($dueDate->isToday())
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-800">
+                                            Due Today
+                                        </span>
+                                    @elseif($dueDate->isPast())
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-red-100 text-red-800">
+                                            Overdue
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
+                                            Pending
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm">
+                                    <a href="{{ route('tasks.edit', $task->id) }}"
+                                        class="text-primary-600 hover:text-primary-900 font-medium">Edit</a>
+                                    <form method="POST" action="{{ route('tasks.destroy', $task->id) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" onclick="return confirm('Are you sure?')"
+                                            class="ml-4 text-red-600 hover:text-red-900 font-medium">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-8 text-gray-500">
+                                    No tasks found. <a href="{{ route('tasks.create') }}"
+                                        class="text-primary-600 hover:text-primary-700">Create one</a>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-4">
+            {{ $tasks->links() }}
         </div>
 
         <!-- Summary Stats -->
@@ -141,7 +170,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Total Tasks</p>
-                        <p class="text-2xl font-bold text-gray-900 mt-2">2</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-2">{{ $stats['total'] }}</p>
                     </div>
                     <div class="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
                         <svg class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -156,7 +185,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Completed</p>
-                        <p class="text-2xl font-bold text-green-600 mt-2">1</p>
+                        <p class="text-2xl font-bold text-green-600 mt-2">{{ $stats['completed'] }}</p>
                     </div>
                     <div class="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
                         <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -170,7 +199,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Overdue</p>
-                        <p class="text-2xl font-bold text-red-600 mt-2">0</p>
+                        <p class="text-2xl font-bold text-red-600 mt-2">{{ $stats['overdue'] }}</p>
                     </div>
                     <div class="h-10 w-10 bg-red-100 rounded-lg flex items-center justify-center">
                         <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,7 +214,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600">Due Today</p>
-                        <p class="text-2xl font-bold text-amber-600 mt-2">1</p>
+                        <p class="text-2xl font-bold text-amber-600 mt-2">{{ $stats['due_today'] }}</p>
                     </div>
                     <div class="h-10 w-10 bg-amber-100 rounded-lg flex items-center justify-center">
                         <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -205,20 +234,17 @@
             const rows = document.querySelectorAll('.task-row');
             const buttons = document.querySelectorAll('[id^="filter-"]');
 
-            // Update button styles
             buttons.forEach(btn => {
                 btn.classList.remove('bg-primary-600', 'text-white');
                 btn.classList.add('text-gray-700', 'hover:bg-gray-50');
             });
 
-            // safeguard if button exists
             const activeBtn = document.getElementById('filter-' + status);
             if (activeBtn) {
                 activeBtn.classList.remove('text-gray-700', 'hover:bg-gray-50');
                 activeBtn.classList.add('bg-primary-600', 'text-white');
             }
 
-            // Filter rows
             rows.forEach(row => {
                 if (status === 'all' || row.dataset.status === status) {
                     row.style.display = '';
